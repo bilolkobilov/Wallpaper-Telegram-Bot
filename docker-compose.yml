@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  wallpaper-bot:
+    build: .
+    restart: unless-stopped
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - CHANNEL_ID=${CHANNEL_ID}
+      - ADMIN_USER_ID=${ADMIN_USER_ID}
+      - PEXELS_API_KEY=${PEXELS_API_KEY}
+      - UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY}
+      - WALLHAVEN_API_KEY=${WALLHAVEN_API_KEY}
+      - WALLPAPERS_PER_BATCH=${WALLPAPERS_PER_BATCH:-4}
+      - BATCH_INTERVAL_HOURS=${BATCH_INTERVAL_HOURS:-2}
+      - SEND_DELAY_SECONDS=${SEND_DELAY_SECONDS:-10}
+      - MAX_RETRIES=${MAX_RETRIES:-3}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./tmp:/app/tmp
+    working_dir: /app
+    command: python run.py
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; exit(0 if os.path.exists('/app/data/bot_stats.json') else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
